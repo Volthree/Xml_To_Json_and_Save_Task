@@ -21,7 +21,6 @@ public class JsonDataService implements Serializable {
     public void saveIntoLog(JsonData jsonData, String json) {
 
         String path = pathDefinition(jsonData);
-        System.out.println(path);
 
         if (isFileEmpty(path)) {
             writeInEmptyFile(path, json);

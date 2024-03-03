@@ -23,6 +23,7 @@ public class XmlParserController {
         String json = XML.toJSONObject(xmlData).toString();
         JsonData jsonDataObject = new ObjectMapper().readValue(json, JsonData.class);
         jsonDataService.saveIntoLog(jsonDataObject, json);
+        System.out.println("SAVED---------------------------------------------");
         return json;
     }
 
