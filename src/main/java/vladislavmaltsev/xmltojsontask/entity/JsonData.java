@@ -4,17 +4,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyJsonData {
+public class JsonData implements Serializable {
     @JsonProperty("Data")
-    private DataParsed data;
+    private DataRoot data;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public final static  class DataParsed {
+    public final static  class DataRoot implements Serializable{
         @JsonProperty("Method")
         private Method method;
         @JsonProperty("Process")
@@ -28,7 +31,7 @@ public class MyJsonData {
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
-        public final static class Method {
+        public final static class Method implements Serializable{
             @JsonProperty("Name")
             private String name;
             @JsonProperty("Type")
@@ -39,7 +42,7 @@ public class MyJsonData {
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
-        public final static class Process {
+        public final static class Process implements Serializable{
             @JsonProperty("Name")
             private String name;
             @JsonProperty("Id")
@@ -49,7 +52,7 @@ public class MyJsonData {
             @Data
             @NoArgsConstructor
             @AllArgsConstructor
-            public final static class Start {
+            public final static class Start implements Serializable{
                 @JsonProperty("Epoch")
                 private String epoch;
                 @JsonProperty("Date")
@@ -59,7 +62,7 @@ public class MyJsonData {
         @Data
         @NoArgsConstructor
         @AllArgsConstructor
-        public final static class Creation {
+        public final static class Creation implements Serializable{
             @JsonProperty("Epoch")
             private String epoch;
             @JsonProperty("Date")
