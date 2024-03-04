@@ -21,7 +21,7 @@ public class JsonDataService {
     }
 
     public String saveIntoLog(String xmlData) {
-        String json = XML.toJSONObject(xmlData).toString();
+        String json = convertToJson(xmlData);
         JsonData jsonData;
         try {
             jsonData = new ObjectMapper().readValue(json, JsonData.class);
@@ -43,6 +43,9 @@ public class JsonDataService {
             new File(pathToLogFile + ".tmp").renameTo(new File(pathToLogFile));
         }
         return json;
+    }
+    public String convertToJson(String xmlData){
+        return XML.toJSONObject(xmlData).toString();
     }
 
     public void copyFileWithNewCount(

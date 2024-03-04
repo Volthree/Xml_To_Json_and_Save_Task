@@ -1,5 +1,6 @@
 package vladislavmaltsev.xmltojsontask.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -7,9 +8,11 @@ import java.text.DecimalFormat;
 
 @Service
 public class FileReaderService {
-    private static final int MAX_RECORDS_PER_FILE = 5;
-    private static final String ROOT_SOURCE_FILE_DIRECTORY = "logs/";
-    private static final String ROOT_RESULT_DATA_FILE_DIRECTORY = "logs/metadata/";
+    private static final int MAX_RECORDS_PER_FILE = 100;
+    @Value("${file.directory.source}")
+    private String ROOT_SOURCE_FILE_DIRECTORY;
+    @Value("${file.directory.result}")
+    private String ROOT_RESULT_DATA_FILE_DIRECTORY;
     private final static int intSizeInBytes = 4;
     private final static int longSizeInBytes = 8;
     int fileNumber;
