@@ -20,11 +20,8 @@ public class XmlParserController {
     private final JsonDataService jsonDataService;
     @PostMapping("/put")
     public String put(@RequestBody String xmlData) throws JsonProcessingException {
-        String json = XML.toJSONObject(xmlData).toString();
-        JsonData jsonDataObject = new ObjectMapper().readValue(json, JsonData.class);
-        jsonDataService.saveIntoLog(jsonDataObject, json);
-        System.out.println("SAVED---------------------------------------------");
-        return json;
+
+        return jsonDataService.saveIntoLog(xmlData);
     }
 
 }

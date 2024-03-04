@@ -1,5 +1,8 @@
 package vladislavmaltsev.xmltojsontask.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.XML;
 import org.springframework.stereotype.Service;
 import vladislavmaltsev.xmltojsontask.entity.JsonData;
 
@@ -10,34 +13,36 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class JsonDataService implements Serializable {
-
-    public static final String baseLine = "Number of records: %d";
+public class JsonDataService {
+    public static final String NUMBER_OF_RECORDS_LINE = "Number of records: %d";
     public static boolean isFileEmpty(String filePath) {
         File file = new File(filePath);
         return !file.exists() || file.length() == 0;
     }
 
-    public void saveIntoLog(JsonData jsonData, String json) {
-
-        String path = pathDefinition(jsonData);
-
-        if (isFileEmpty(path)) {
-            writeInEmptyFile(path, json);
-        } else {
+    public String saveIntoLog(String xmlData) {
+        String json = XML.toJSONObject(xmlData).toString();
+        JsonData jsonData;
+        try {
+            jsonData = new ObjectMapper().readValue(json, JsonData.class);
+        } catch (JsonProcessingException e) {throw new RuntimeException(e);}
+        String pathToLogFile = pathDefinition(jsonData);
+        if (isFileEmpty(pathToLogFile)) writeInEmptyFile(pathToLogFile, json);
+        else {
             try (
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(path));
-                    BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path + ".tmp"))
+                    var bufferedReader = new BufferedReader(new FileReader(pathToLogFile));
+                    var bufferedWriter = new BufferedWriter(new FileWriter(pathToLogFile + ".tmp"))
             ) {
-                copyFileWithNewCount(bufferedReader, bufferedWriter, path);
+                copyFileWithNewCount(bufferedReader, bufferedWriter, pathToLogFile);
                 bufferedWriter.write(json);
-                bufferedWriter.write(System.lineSeparator());
+                bufferedWriter.newLine();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            new File(path).delete();
-            new File(path + ".tmp").renameTo(new File(path));
+            new File(pathToLogFile).delete();
+            new File(pathToLogFile + ".tmp").renameTo(new File(pathToLogFile));
         }
+        return json;
     }
 
     public void copyFileWithNewCount(
@@ -46,8 +51,8 @@ public class JsonDataService implements Serializable {
             String path) throws IOException {
         String line;
         Integer recordsNumber = readOldRecordsNumberLine(path);
-        String oldLine = String.format(baseLine, recordsNumber);
-        String newLine = String.format(baseLine, ++recordsNumber);
+        String oldLine = String.format(NUMBER_OF_RECORDS_LINE, recordsNumber);
+        String newLine = String.format(NUMBER_OF_RECORDS_LINE, ++recordsNumber);
         while ((line = bufferedReader.readLine()) != null) {
             if (line.equals(oldLine)) {
                 bufferedWriter.write(newLine);
@@ -62,9 +67,9 @@ public class JsonDataService implements Serializable {
         try {
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(path));
             bufferedWriter.write("Number of records: " + 1);
-            bufferedWriter.write(System.lineSeparator());
+            bufferedWriter.newLine();
             bufferedWriter.write(json);
-            bufferedWriter.write(System.lineSeparator());
+            bufferedWriter.newLine();
             bufferedWriter.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -72,9 +77,9 @@ public class JsonDataService implements Serializable {
     }
 
     private Integer readOldRecordsNumberLine(String path) {
-        Pattern pattern = Pattern.compile("Number of records: (\\d+)");
-        try (BufferedReader bufferedWriter = new BufferedReader(new FileReader(path))) {
-            Matcher matcher = pattern.matcher(bufferedWriter.readLine());
+        Pattern firstLinePattern = Pattern.compile("Number of records: (\\d+)");
+        try (var bufferedWriter = new BufferedReader(new FileReader(path))) {
+            Matcher matcher = firstLinePattern.matcher(bufferedWriter.readLine());
             if (matcher.find()) {
                 return Integer.parseInt(matcher.group(1));
             }
